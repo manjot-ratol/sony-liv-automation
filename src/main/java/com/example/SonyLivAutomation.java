@@ -38,13 +38,13 @@ public class SonyLivAutomation {
             driver1 = new SafariDriver(options);
             driver1.manage().window().maximize(); // Make Safari full screen
 
-            // Function to play video and handle mute
+            // Function to play video
             playVideo(driver1);
+            Thread.sleep(40000);
             boolean d1 = false;
             // Loop or additional actions
             while (true) {
-                if (d1) {// Wait for 30 seconds before opening a new tab
-                    Thread.sleep(30000);
+                if (d1) {
 
                     // Close the existing Safari session
                     if (driver1 != null) {
@@ -54,23 +54,25 @@ public class SonyLivAutomation {
 
                     // Open a new Safari session
                     driver1 = new SafariDriver(options);
-                    driver1.manage().window().maximize(); // Make Safari full screen
+                    driver1.manage().window().minimize(); // Make Safari minimize
 
-                    // Function to play video and handle mute
+                    // Function to play video
                     playVideo(driver1);
+                    muteVideo(driver2);
 
-                    // let the add pass before stoping other window
-                    Thread.sleep(10000);
+                    // let the advertisment pass before stoping other window
+                    Thread.sleep(20000);
+                    driver1.manage().window().maximize();
+                    unmuteVideo(driver2);
                     if (driver2 != null) {
                         driver2.quit();
                         driver2 = null; // Ensure no lingering references
                     }
+                    Thread.sleep(40000);
                     d1 = false;
                 } else {
-                    // Wait for 30 seconds before opening a new tab
-                    Thread.sleep(30000);
 
-                    // Close the existing Safari session
+                    // Close the existing chrome session
                     if (driver2 != null) {
                         driver2.quit();
                         driver2 = null; // Ensure no lingering references
@@ -78,18 +80,21 @@ public class SonyLivAutomation {
 
                     // Open a new chrome session
                     driver2 =  new ChromeDriver(chromeOptions);
-                    driver2.manage().window().maximize(); // Make Chrome full screen
+                    driver2.manage().window().minimize(); // Make Chrome minimize
 
                     // Function to play video and handle mute
                     playVideo(driver2);
+                    muteVideo(driver2);
 
-                    // let the add pass before stoping other window
-                    Thread.sleep(10000);
+                    // let the advertisment pass before stoping other window
+                    Thread.sleep(20000);
+                    driver2.manage().window().maximize(); // Make Chrome full screen
+                    unmuteVideo(driver2);
                     if (driver1 != null) {
                         driver1.quit();
                         driver1 = null; // Ensure no lingering references
                     }
-
+                    Thread.sleep(40000);
                     d1 = true;
                 }
             }
@@ -114,18 +119,15 @@ public class SonyLivAutomation {
         WebElement playButton = driver.findElement(By.xpath(
                 "//*[@id=\"homePage\"]/div/div/div/div[1]/div[2]/div/div/div[2]/div/div[1]/div/div/div/div[3]/div[2]/button"));
         playButton.click();
+    }
 
-        // Wait for 30 seconds
-        Thread.sleep(30000);
+    private static void muteVideo(WebDriver driver) {
+        JavascriptExecutor jsExecutor = (JavascriptExecutor) driver;
+        jsExecutor.executeScript("var videos = document.querySelectorAll('video'); for (var i = 0; i < videos.length; i++) { videos[i].muted = true; }");
+    }
 
-        // Mute the video
-        // JavascriptExecutor jsExecutor = (JavascriptExecutor) driver;
-        // jsExecutor.executeScript("document.querySelector('video').muted = true;");
-
-        // Wait for 45 seconds
-        Thread.sleep(10000);
-
-        // Unmute the video
-        // jsExecutor.executeScript("document.querySelector('video').muted = false;");
+    private static void unmuteVideo(WebDriver driver) {
+        JavascriptExecutor jsExecutor = (JavascriptExecutor) driver;
+        jsExecutor.executeScript("var videos = document.querySelectorAll('video'); for (var i = 0; i < videos.length; i++) { videos[i].muted = false; }");
     }
 }
